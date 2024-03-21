@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PracticaParaPracticaJueves.Models;
+using System.Security.Claims;
 
 namespace PracticaParaPracticaJueves.Controllers
 {
@@ -58,14 +64,10 @@ namespace PracticaParaPracticaJueves.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,RolId,Username,Password")] User user)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(user);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["RolId"] = new SelectList(_context.Rols, "Id", "Name", user.RolId);
-            return View(user);
+            user.Password = CalcularHashMD5(user.Password);
+            _context.Add(user);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Users/Edit/5
@@ -162,6 +164,61 @@ namespace PracticaParaPracticaJueves.Controllers
         private bool UserExists(int id)
         {
           return (_context.Users?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        //------------------------------login--------------------------------
+        [AllowAnonymous]
+        public async Task<IActionResult> Login(string ReturnUrl) //Metodo_1 Vista Login
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            ViewBag.ReturnUrl = ReturnUrl;
+            return View();
+        }
+        [AllowAnonymous]
+        [HttpPost] //Metodo_2 Datos De La Vista De Login
+        public async Task<IActionResult> Login([Bind("Username,Password")] User user, string ReturnUrl)
+        {
+            user.Password = CalcularHashMD5(user.Password);
+            var usuarioAut = await _context.Users.Include(e => e.Rol).FirstOrDefaultAsync(s => s.Username == user.Username && s.Password == user.Password);
+            if (usuarioAut?.Id > 0 && usuarioAut.Username == user.Username)
+            {
+                var claims = new[] {
+                    new Claim(ClaimTypes.Name,usuarioAut.Username),
+                     new Claim(ClaimTypes.Role, usuarioAut.Rol.Name),
+                    new Claim("Id", usuarioAut.Id.ToString())
+                    };
+                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity), new AuthenticationProperties { IsPersistent = true }); ;
+                var result = User.Identity.IsAuthenticated;
+                if (!string.IsNullOrWhiteSpace(ReturnUrl))
+                    return Redirect(ReturnUrl);
+                else
+                    return RedirectToAction("Index", "Home");
+            }
+            else
+                ViewBag.Error = "Credenciales incorrectas";
+            ViewBag.pReturnUrl = ReturnUrl;
+            return View(user);
+        }
+        private string CalcularHashMD5(string texto)
+        {
+            using (MD5 md5 = MD5.Create())
+            {
+                // Convierte la cadena de texto a bytes
+                byte[] inputBytes = Encoding.UTF8.GetBytes(texto);
+
+                // Calcula el hash MD5 de los bytes
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+                // Convierte el hash a una cadena hexadecimal
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < hashBytes.Length; i++)
+                {
+                    sb.Append(hashBytes[i].ToString("x2"));
+                }
+
+                return sb.ToString();
+            }
         }
     }
 }
