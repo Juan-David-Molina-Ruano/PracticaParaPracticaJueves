@@ -41,6 +41,9 @@
             @Html.DisplayFor(model => model.Address)
         </dd>
     </dl>
+    <div class="col-md-12" style="margin-top:10px;">
+        @await Html.PartialAsync("_CustomersDetails", Model.Phones)
+    </div>
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |

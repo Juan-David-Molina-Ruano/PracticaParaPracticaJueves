@@ -28,12 +28,10 @@ namespace PracticaParaPracticaJueves.Models
         public string LastName { get; set; }
 
         [Required(ErrorMessage = "El campo {0} es requerido")]
-        [RegularExpression("^[0-9]*$", ErrorMessage = "El campo {0} solo puede contener números")]
         [EmailAddress(ErrorMessage = "El campo {0} no es un correo válido")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "El campo {0} es requerido")]
-        [RegularExpression("^[0-9]*$", ErrorMessage = "El campo {0} solo puede contener números")]
         [StringLength(200, ErrorMessage = "El campo {0} debe tener una longitud máxima de {1} caracteres")]
         public string Address { get; set; }
     }

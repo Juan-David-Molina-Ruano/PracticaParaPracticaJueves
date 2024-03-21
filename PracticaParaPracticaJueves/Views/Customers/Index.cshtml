@@ -34,7 +34,15 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Imagen)
+                    @{
+                        string urlBase64 = "";
+                        if (item.Imagen != null && item.Imagen.Length > 0)
+                        {
+                            string base64String = Convert.ToBase64String(item.Imagen);
+                            urlBase64 = "data:image/jpeg;base64," + base64String;
+                        }
+                    }
+                    <img src="@urlBase64" width="50px" />
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.FirstName)

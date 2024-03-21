@@ -42,6 +42,9 @@
             @Html.DisplayFor(model => model.Address)
         </dd>
     </dl>
+    <div class="col-md-12" style="margin-top:10px;">
+        @await Html.PartialAsync("_CustomersDetails", Model.Phones)
+    </div>
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
