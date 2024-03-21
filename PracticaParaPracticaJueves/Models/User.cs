@@ -8,6 +8,10 @@ namespace PracticaParaPracticaJueves.Models
         [Key]
         public int Id { get; set; }
 
+        //rol---------------------------
+        public virtual Rol Rol { get; set; }
+        //rol---------------------------
+
         [Required(ErrorMessage = "El campo {0} es requerido")]
         public string Username { get; set; }
 

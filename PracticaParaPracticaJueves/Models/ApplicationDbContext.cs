@@ -11,6 +11,7 @@ namespace PracticaParaPracticaJueves.Models
         public DbSet<User> Users { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Phone> Phones { get; set; }
+        public DbSet<Rol> Rols { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
