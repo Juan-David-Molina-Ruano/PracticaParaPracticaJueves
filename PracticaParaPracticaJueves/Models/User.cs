@@ -9,6 +9,9 @@ namespace PracticaParaPracticaJueves.Models
         public int Id { get; set; }
 
         //rol---------------------------
+        [Display(Name = "Rol")]
+        public int RolId { get; set; }
+
         public virtual Rol Rol { get; set; }
         //rol---------------------------
 
