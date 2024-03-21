@@ -20,6 +20,5 @@ namespace PracticaParaPracticaJueves.Models
         public string Password { get; set; }
 
         [Required(ErrorMessage = "El campo {0} es requerido")]
-        public string Rol { get; set;} 
     }
 }
